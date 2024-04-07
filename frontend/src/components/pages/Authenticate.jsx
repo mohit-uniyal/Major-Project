@@ -1,6 +1,6 @@
 import axios from 'axios';
 import React, { useCallback, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 import Webcam from 'react-webcam';
 
@@ -9,6 +9,8 @@ const Authenticate = () => {
     const navigate=useNavigate();
     const webcamRef=useRef(null);
     const [capturedImage, setCapturedImage]=useState(null);
+    const location=useLocation();
+    const {username, roomId}=location.state;
 
     const capture=useCallback(()=>{
         const imageSrc=webcamRef.current.getScreenshot();
@@ -17,11 +19,24 @@ const Authenticate = () => {
 
     const submitImageHandler=async()=>{
         try{
-            const formData=new FormData();
-            const blob = await fetch(capturedImage).then((res) => res.blob());
-            formData.append('faceImage', blob);
-            const response=await axios.post(
-                "http://localhost:4000/api/auth/faceauthenticate",
+            // const formData=new FormData();
+            // const blob = await fetch(capturedImage).then((res) => res.blob());
+            // formData.append('faceImage', blob);
+            // const response=await axios.post(
+            //     "http://localhost:4000/api/auth/faceauthenticate",
+            //     formData,
+            //     {
+            //         headers: {
+            //             'Content-Type': 'multipart/form-data'
+            //         }
+            //     }
+            // );
+
+            const formData = new FormData();
+            const blob = await fetch(capturedImage).then((res) => res.blob()); 
+            formData.append('image', blob);
+            const response= await axios.post(
+                "http://localhost:5000/recognize",
                 formData,
                 {
                     headers: {
@@ -29,11 +44,14 @@ const Authenticate = () => {
                     }
                 }
             );
-            if(!response.ok){
-                throw Error(response.message);
+            console.log(response.data);
+            if(!response.data.success){
+                throw new Error('Face not matched');
             }
+            navigate(`/room/${roomId}`, { state: { username } });
         }catch(error){
             console.log(error);
+            navigate('/');
         }
     }
 

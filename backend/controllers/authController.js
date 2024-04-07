@@ -2,6 +2,8 @@ const User = require('../models/userModel')
 const bcrypt = require("bcrypt")
 const JWT = require('jsonwebtoken')
 const fs=require('fs');
+const path=require('path');
+const tempDirectory=path.join(__dirname, '..', 'public', 'temp');
 
 exports.registerController = async (req, res) => {
   try {
@@ -112,11 +114,54 @@ exports.loginController = async (req, res) => {
     }
   }
 
+function deleteJPGFilesFromTemp() {
+  fs.readdir(tempDirectory, (err, files) => {
+      if (err) {
+          console.error('Error reading directory:', err);
+          return;
+      }
+      files.forEach(file => {
+          if (path.extname(file) === '.jpg') {
+              fs.unlink(path.join(tempDirectory, file), err => {
+                  if (err) {
+                      console.error(`Error deleting file ${file}:`, err);
+                  }
+              });
+          }
+      });
+  });
+}
+
 exports.verifyFaceController=async (req, res)=>{
   try{
+
+    const files = fs.readdirSync(tempDirectory);
+    const jpegFile = files.find(file => path.extname(file).toLowerCase() === '.jpg' || path.extname(file).toLowerCase() === '.jpeg');
+    if (!jpegFile) {
+      throw new Error('No JPEG file found in the folder.');
+    }
+    const imagePath = path.join(tempDirectory, jpegFile);
+    const imageData = fs.readFileSync(imagePath);
+
+    const response = await fetch("http://localhost:5000/recognize", {
+      method: 'POST',
+      body: JSON.stringify({
+        image: imageData.toString('base64')
+      }),
+      headers: {
+          'Content-Type': 'application/json'
+      },
+    });
+
+    const data=await response.json();
+    console.log(data);
+
+    deleteJPGFilesFromTemp();
+
     res.status(200).json({message: "working"});
   }catch(error){
     console.log(error);
+    deleteJPGFilesFromTemp();
     res.status(400).json({message: "Internal Server Error"});
   }
 }

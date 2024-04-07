@@ -19,7 +19,8 @@ const JoinRoom = () => {
         localStorage.setItem('username', username);
 
         console.log(roomId);
-        navigate(`/room/${roomId}`, { state: { username } })
+        // navigate(`/room/${roomId}`, { state: { username } })
+        navigate(`/authenticate`, { state: { username, roomId } });
     }, [navigate])
     useEffect(() => {
         const token = localStorage.getItem("auth");
