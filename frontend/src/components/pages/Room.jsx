@@ -146,7 +146,7 @@ const Room = () => {
             },
             body: data
         };
-        fetch('https://api.codex.jaagrav.in', config)
+        fetch('https://codex-api.fly.dev/', config)
             .then(res => res.json())
             .then(data => {
                 if (data['error'].length == 0) {
