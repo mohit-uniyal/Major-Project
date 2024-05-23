@@ -19,24 +19,11 @@ const Authenticate = () => {
 
     const submitImageHandler=async()=>{
         try{
-            const formData=new FormData();
-            const blob = await fetch(capturedImage).then((res) => res.blob());
-            formData.append('faceImage', blob);
-            const response=await axios.post(
-                "http://localhost:4000/api/auth/faceauthenticate",
-                formData,
-                {
-                    headers: {
-                        'Content-Type': 'multipart/form-data'
-                    }
-                }
-            );
-
-            // const formData = new FormData();
-            // const blob = await fetch(capturedImage).then((res) => res.blob()); 
-            // formData.append('image', blob);
-            // const response= await axios.post(
-            //     "http://localhost:5000/recognize",
+            // const formData=new FormData();
+            // const blob = await fetch(capturedImage).then((res) => res.blob());
+            // formData.append('faceImage', blob);
+            // const response=await axios.post(
+            //     "http://localhost:4000/api/auth/faceauthenticate",
             //     formData,
             //     {
             //         headers: {
@@ -44,6 +31,19 @@ const Authenticate = () => {
             //         }
             //     }
             // );
+
+            const formData = new FormData();
+            const blob = await fetch(capturedImage).then((res) => res.blob()); 
+            formData.append('image', blob);
+            const response= await axios.post(
+                "http://localhost:5000/recognize",
+                formData,
+                {
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
+                    }
+                }
+            );
             console.log(response.data);
             if(!response.data.success){
                 throw new Error('Face not matched');

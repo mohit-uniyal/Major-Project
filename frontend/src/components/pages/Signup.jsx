@@ -99,7 +99,7 @@ const Signup = () => {
                             >
                                 I agree the
                                 <Link
-                                    to="https://github.com/ddheer29"
+                                    to="#"
                                     className="font-medium transition-colors hover:text-gray-900"
                                 >
                                     &nbsp;Terms and Conditions
